@@ -1,0 +1,3 @@
+model_checkpoint_path: "C:\\SPB_Data\\churn prediction DSN kaggle competition 1 2018\\BestGitWork\\my_final_model.ckpt"
+all_model_checkpoint_paths: "C:\\SPB_Data\\churn prediction DSN kaggle competition 1 2018\\BestGitWork\\my_model.ckpt"
+all_model_checkpoint_paths: "C:\\SPB_Data\\churn prediction DSN kaggle competition 1 2018\\BestGitWork\\my_final_model.ckpt"

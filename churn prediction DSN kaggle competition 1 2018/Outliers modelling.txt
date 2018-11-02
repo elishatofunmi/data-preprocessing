@@ -1,0 +1,53 @@
+outliers are extreme values that fall a long way outside of the other observations. For example, a normal distribution, outliers may be values on the tail of the distribution.
+
+The process of identifying outliers has many names in data mining and machine learning such as outlier mining, outlier modeling and novelty detection and anomaly outlier detection methods, as follows:
+1. extreme value Analysis: Determine the statistical tails of the underlying distribution of the data. For example, statistical methods like the z -scores on univarite data.
+
+2. Probabilitic and statistical models: Determine unlikely instances from a probabilistic model of the data. For example, gaussian mixture models optimized using expectation-maximization.
+
+3. linear models: projection methods that model the data into lower dimensions using linear correlations. For example, principal component analysis and data with large residual errors may be outliers.
+
+4. Proximity-based Models: Data instances that are isolated from the mass of the data as determined by cluster, density or nearest neighbor analysis.
+
+5. Information Theoretic Models: Outliers are detected as data instances that increase the complexity (minimum code length) of the dataset.
+
+6. High-dimensional Outlier Detection: Methods that search subspaces for outliers give the breakdown of distance based measures in higher dimensions (curse of dimensionality).
+
+
+
+GETTING STARTED
+There are many methods and much research put into outlier detection. Start by making some assumptions and design experiments where you can clearly observe the effects of those assumptions against some performance or accuracy measure.
+
+1. Extreme value analysis
+You do not need to know advanced statistical methods to look for, analyze and filter out outliers from your data. Start out simply with extreme value analysis.s
+    a. Focus on univariate methods
+    b. Visualized the data using scatterplots, histograms, and box and whisker plots and look for extreme values.
+    c. Assume a distribution (Gaussian) and look for values more than 2 or 3 standard deviations from the mean or 1.5 times from the first or third quartile.
+    d. Filter out outliers candidate from training dataset and assess your models performance.
+    
+    
+ 
+ 2. Proximity Methods
+ Once you have explored simpler extreme value methods, consider moving onto proximity-based methods:
+     1. Use clustering methods to identigy the natural clusters in the data (such as the k-means algorithm).
+     2. Identify and mark the cluster centroids.
+     3. Identify data instances that are fixed distances or percentage distance from the cluster centroids.
+     4. Filter out outliers candidate from training dataset and assess your model performance.
+     
+     
+ 3. Projection methods
+ Projection methods are relatively simple to apply and quickly highlight extraneous values
+     a. Use projection methods to summarize your data into two dimensional (such as PCA,SOM, or sammon's mapping).
+     b. Visualize the mapping and identify outliers by hand.
+     c. Use proximity measures from projected values or codebook vectors to identify outliers.
+     d. Filter out outliers candidate from training dataset and assess your model performance.
+     
+     
+ 4. Methods Robust to outliers
+ An alternative strategy is to move to models that are robust to outliers. There are robust forms or regression that minimize the median least square errors rather than means (so-called robust regression), but are more computationally intensive. There are also methods like decision trees that are robust to outliers.
+ You could spot check some methods that are robust to outliers. If there are siginficant model accuracy benefits then there may be an opportunity to model and filter out outliers from your training data.
+ 
+ Techiniques:
+ 1. Use standardization techniques
+ 2. If you are using data for classification use Decision Tree(CART, Random Forest, XgBoost, etc). As decision trees are split by purity so thy don't get affected by outliers like median.
+ 3. Remove the outlier and apply machine learning.
