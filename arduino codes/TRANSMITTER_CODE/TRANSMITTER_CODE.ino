@@ -1,6 +1,6 @@
 //#include <ArduinoJson.h>
 #include <Arduino.h>
-//#include <nRF24L01.h>
+#include <nRF24L01.h>
 #include <SPI.h>
 #include <RF24.h>
 
@@ -27,13 +27,6 @@ boolean buttonState = false;
 boolean stateAlarm = LOW;
 
 
-
-struct dataStruct{
-  unsigned long _micros;
-  float value;
-}myData;
-
-
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(BUTTON, OUTPUT);
@@ -41,7 +34,7 @@ void setup() {
   pinMode(Sensor_two, INPUT);
   pinMode(Sensor_three, INPUT);
 
-  Serial.begin(115200);
+  Serial.begin(9600);
   //indicate program has started
   digitalWrite(LED_BUILTIN, HIGH);
 
@@ -50,21 +43,17 @@ void setup() {
   
 
   //set the address
-  radio.setPALevel(RF24_PA_LOW);
-  //radio.setDataRate(RF24_2MBPS);
-  //radio.setChannel(124);
+  radio.setPALevel(RF24_PA_MIN);
+  radio.setDataRate(RF24_2MBPS);
+  radio.setChannel(124);
   //radio.openWritingPipe(address[1]);
 
-  if (radioNumber){
-    radio.openWritingPipe(addresses[1]);
-    //radio.openReadingPipe(1, addresses[0]);
-  }else{
-    radio.openWritingPipe(addresses[0]);
-    //radio.openReadingPipe(1,address[1]);
-  }
-  myData.value = 1.22;
+  Serial.println("Writing to address 1");
+  radio.openWritingPipe(addresses[1]);
+  Serial.println("Writing to address 0");
+  
   // start the radio listening for data
-  radio.startListening();
+  radio.stopListening();
   
   
 
@@ -79,7 +68,6 @@ void loop() {
     radio.stopListening();
     Serial.println(F("Now Sending"));
 
-    myData._micros = micros();
     int one = digitalRead(Sensor_one);
     int two = digitalRead(Sensor_two);
     int three = digitalRead(Sensor_three);
@@ -92,16 +80,29 @@ void loop() {
       digitalWrite(BUTTON, HIGH);
       stateAlarm = HIGH;
       // SEND MESSAGE TO RECEIVER
-      if (!radio.write(&myData, sizeof(myData))){
-      Serial.println(F("Failed"));
+      Serial.println("Detected Movements/Humans"); 
+      bool slt;
+
+
+      unsigned char myData = 1.22;
+      slt = radio.write( &myData, sizeof(unsigned char) );
+      Serial.print(slt);
+      if (!slt){
+        Serial.println(F("Failed"));
+        }
+        else{
+          Serial.println("Writing to address");
+          radio.write( &myData, sizeof(unsigned char) );
+          Serial.println(F("Data re-sent"));
+          }
+      
     }else{
-      radio.write(&myData, sizeof(myData));
-      Serial.println(F("Data re-sent"));
+      buttonState = LOW;
+      digitalWrite(BUTTON, LOW);
+      digitalWrite(LED_BUILTIN, LOW);
     }
       
-  }
+      
+   } 
     
-    
-  } 
-  
-}
+ }

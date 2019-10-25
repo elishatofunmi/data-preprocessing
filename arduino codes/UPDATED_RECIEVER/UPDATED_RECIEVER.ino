@@ -9,45 +9,33 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 bool radioNumber = 1;
 bool role = 1; //receiver
 //create an RF24 object
-RF24 radio(7,8);  // CE, CSN
+RF24 radio(8,10);  // CE, CSN
 
 //address through which two modules communicate.
-const byte address[][6] = {"1Node", "2Node"};
+const byte addresses[][6] = {"1Node", "2Node"};
 
-struct dataStruct{
-  unsigned long _micros;
-  float value;
-}myData;
+
 
 void setup()
 {
-  pinMode(4, OUTPUT);
-  // display welcome on LCD
-  //lcd.begin(16, 2);
-  //lcd.print("Motion Not Detected");
+  pinMode(7, OUTPUT);
   Serial.begin(115200);
   Serial.println("program started");
   delay(2000);
   //lcd.clear();
   
   radio.begin();
-  radio.setPALevel(RF24_PA_LOW);
-  //radio.setPALevel(RF24_PA_MIN);
-  //radio.setDataRate(RF24_2MBPS);
-  //set the address
-  if(radioNumber){
-    //radio.openWritingPipe(addresses[1]);
-    radio.openReadingPipe(1,address[1]);
-  }else{
-    //radio.openWritingPipe(addresses[0]);
-    radio.openReadingPipe(1,address[0]);
-  }
+  radio.setPALevel(RF24_PA_MIN);
+  radio.setDataRate(RF24_2MBPS);
 
-  //radio.setChannel(124);
-  //radio.openReadingPipe(1,address[1]);
+  radio.setChannel(115);
+  //set the address
+  Serial.println("Reading from address 1");
+  radio.openReadingPipe(1,addresses[1]);
+  
+
   Serial.println("opened reading address");
   
-  //Serial.println("PA level has been set");
   
   //Set module as receiver
   radio.startListening();
@@ -61,18 +49,31 @@ void loop()
   if (role == 1){
 
     radio.startListening();
-    Serial.println(F("Now Listening"));
+    unsigned char data;
+
+  
+    Serial.println("Now Listening");
     if (radio.available()){
-      radio.read(&myData, sizeof(myData));
-    }
-    Serial.println(myData.value);
-    if (myData.value == 1.22){
+      
+      radio.read( &data, sizeof(char));
+      Serial.println("Here");
+      if (data == 1.22){
+      Serial.print(", Got response ");
       Serial.println("Motion Detected");
-      digitalWrite(4, HIGH);
+      digitalWrite(7,HIGH);
+      Serial.println(data);
+      }
+      else{
+        digitalWrite(7, LOW);
+        Serial.println("Motion not Detected");
+      }
+      
     }
-    else{
-      digitalWrite(4, LOW);
-    }
+   
+  else{
+    Serial.println("Transmitter not found");
+    digitalWrite(7, LOW);
+  }
   }
   
 }

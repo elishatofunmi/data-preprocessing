@@ -15,7 +15,10 @@
  ****************************************************/
 
 //#include <ESP8266WiFi.h">
-#include <FirebaseArduino.h>
+//#include <FirebaseArduino.h>
+
+#include "Firebase_Arduino_WiFi101.h"
+
 #include <ArduinoJson.h>
 #include <Adafruit_Fingerprint.h>
 #include <Keypad.h>
@@ -27,6 +30,9 @@ int count_id;
 int check_id;
 int id;
 int password_status; 
+
+//Define Firebase data object
+FirebaseData firebaseData;
 
 char Master[Password_Length] = "1234";
 byte data_count = 0, master_count = 0;
@@ -73,11 +79,11 @@ Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
 
 void setup()  
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   //connect to wifi
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print('connecting');
+  Serial.print("Connecting to wifi");
   while (WiFi.status() != WL_CONNECTED){
     Serial.print(".");
     delay(500);
@@ -86,7 +92,15 @@ void setup()
   Serial.println();
   Serial.print("Connected: ");
   Serial.println(WiFi.localIP());
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+
+
+  //provide the authentication data
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH, WIFI_SSID, WIFI_PASSWORD);
+  Firebase.reconnectWiFi(true);
+
+
+  String path = "/UNO_WIFI_REV2_TEST";
+  String jsonStr;
   
   while (!Serial);  // For Yun/Leo/Micro/Zero/...
   delay(100);
@@ -271,7 +285,28 @@ int enroll(){
     //upload new ID
     char val;
     val = finger.image2Tz(1);
-    Firebase.setInt("Access granted to ID: ", val);
+    if (Firebase.getInt(firebaseData, path+ String(id), val)){
+      Serial.println("Path: " + firebaseData.dataPath());
+      Serial.println("image: ");
+      if (firebaseData.dataType() == "int")
+        Serial.println(firebaseData.intData());
+      else if (firebaseData.dataType() == "float")
+        Serial.println(firebaseData.floatData());
+      else if (firebaseData.dataType() == "boolean")
+        Serial.println(firebaseData.boolData() == 1 ? "true" : "false");
+      else if (firebaseData.dataType() == "string")
+        Serial.println(firebaseData.stringData());
+      else if (firebaseData.dataType() == "json")
+        Serial.println(firebaseData.jsonData());
+      Serial.println("--------------------------------");
+      Serial.println();
+    }else
+    {
+      Serial.println("----------Can't set data--------");
+      Serial.println("REASON: " + firebaseData.errorReason());
+      Serial.println("--------------------------------");
+      Serial.println();
+    }
     
     
     
@@ -412,6 +447,7 @@ void loop()                     // run over and over again
         vor = get_password();
         if (vor == threshold){
           delay(4000);
+          enroll();
           break;
       }
       else{
@@ -424,7 +460,7 @@ void loop()                     // run over and over again
     
     //handle error
     
-    enroll();
+    //enroll();
 //    exit();
  }
  else{
